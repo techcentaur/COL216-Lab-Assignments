@@ -1,42 +1,75 @@
 	.equ SWI_Exit, 0x11
-	
 	.data
-AA: .word 13
 	.text
    	.globl _start
 
 _start:
-	ldr r0,=AA
-    @stmfd	sp!, {r1,r2,r3,r4,lr}	@ save variables to stack
+	mov r1,#68
+	mov r6,r1
+	mov r2,#10
+	b _compare
 
+_redo_r5:
+	mov r5,#0
+
+_compare:
+	cmp r1,r2
+	mov r2,#1
+	blt _continue
+	mov r2,#100
+	cmp r1,#100
+	mov r2,#10
+	blt _continue
+	mov r2,#1000
+	cmp r1,r2
+	mov r2,#100
+	blt _continue
+	mov r2,#1000
+
+_continue:
+	mov r3,#0 
+
+_sub:
+	sub r1,r1,r2
+	add r3,r3,#1
+	cmp r1,r2
+	bge _sub
 
 _square:
+	mul r4,r3,r3
+	add r5,r5,r4
+	cmp r1,#0
+	beq _check
+	b _compare
 
+_again:
+	mov r1,r5
+	b _redo_r5
 
-_checkHappy:
-	cmp r1,#1
-	beq _HN
-	cmp r1,#7
-	beq _HN
-	cmp r1,#13
-	beq _HN
-	mov pc,lr
+_check:
+	cmp r5,#1
+	beq _happy
+	cmp r5,#7
+	beq _happy
+	cmp r5,#10
+	beq _happy
+	cmp r5,r6
+	beq _happy
+	cmp r5,#10
+	ble _end
+	b _again
 
+_happy:
+	ldr r7,=_HN
+	swi 0X02
 
 _end:
-	@ldmfd   sp!, {r1,r2,r3,r4,pc}	@ restore state from stack and leave function
-
-_HN:.asciz "Happy Number!!\0"
+	.data
+_HN:.ascii "Happy Number!!\0"
 	swi SWI_Exit
 	.end
-# a
-# visited = set()
-# while 1:
-#     if a == 1:
-#         print "Number is happy!"
-#         break
-#     a = sum(int(c) ** 2 for c in str(a))
-#     if a in visited:
-#         print "Number is sad!"
-#         break
-#     visited.add(a)
+
+
+
+    @stmfd	sp!, {r1,r2,r3,r4,lr}	@ save variables to stack	
+	@ldmfd   sp!, {r1,r2,r3,r4,pc}	@ restore state from stack and leave function
