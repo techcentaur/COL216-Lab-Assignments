@@ -68,8 +68,11 @@ _processMove:
 
 
 _processStep1:
-	add r7,r5,#1
-	add r8,r6,#0
+	mov r3,#0 @count
+	mov r9,#1
+	mov r10,#0
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -80,8 +83,9 @@ _processStep1:
 	cmp r12,r11
 	beq _processStep2
 _processStep1sub1:
-	add r7,r7,#1
-	add r8,r8,#0
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -90,13 +94,17 @@ _processStep1sub1:
 	cmp r12,#0
 	beq _processStep2
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 _processStep2:
-	add r7,r5,#1
-	add r8,r6,#1
+	mov r3,#0 @count
+	mov r9,#1
+	mov r10,#1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -107,8 +115,9 @@ _processStep2:
 	cmp r12,r11
 	beq _processStep3
 _processStep2sub1:
-	add r7,r7,#1
-	add r8,r8,#1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -117,14 +126,18 @@ _processStep2sub1:
 	cmp r12,#0
 	beq _processStep3
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 
 _processStep3:
-	add r7,r5,#0
-	add r8,r6,#1
+	mov r3,#0 @count
+	mov r9,#0
+	mov r10,#1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -135,8 +148,9 @@ _processStep3:
 	cmp r12,r11
 	beq _processStep4
 _processStep3sub1:
-	add r7,r7,#0
-	add r8,r8,#1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -145,12 +159,16 @@ _processStep3sub1:
 	cmp r12,#0
 	beq _processStep4
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 _processStep4:
-	add r7,r5,#1
-	add r8,r6,#-1
+	mov r3,#0 @count
+	mov r9,#1
+	mov r10,#-1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -161,8 +179,9 @@ _processStep4:
 	cmp r12,r11
 	beq _processStep5
 _processStep4sub1:
-	add r7,r7,#1
-	add r8,r8,#-1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -171,13 +190,17 @@ _processStep4sub1:
 	cmp r12,#0
 	beq _processStep5
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 _processStep5:
-	add r7,r5,#0
-	add r8,r6,#-1
+	mov r3,#0 @count
+	mov r9,#0
+	mov r10,#-1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -188,8 +211,9 @@ _processStep5:
 	cmp r12,r11
 	beq _processStep6
 _processStep5sub1:
-	add r7,r7,#0
-	add r8,r8,#-1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -198,13 +222,17 @@ _processStep5sub1:
 	cmp r12,#0
 	beq _processStep6
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 _processStep6:
-	add r7,r5,#-1
-	add r8,r6,#-1
+	mov r3,#0 @count
+	mov r9,#-1
+	mov r10,#-1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -215,8 +243,9 @@ _processStep6:
 	cmp r12,r11
 	beq _processStep7
 _processStep6sub1:
-	add r7,r7,#-1
-	add r8,r8,#-1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -225,13 +254,17 @@ _processStep6sub1:
 	cmp r12,#0
 	beq _processStep7
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 _processStep7:
-	add r7,r5,#-1
-	add r8,r6,#0
+	mov r3,#0 @count
+	mov r9,#-1
+	mov r10,#0
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -242,8 +275,9 @@ _processStep7:
 	cmp r12,r11
 	beq _processStep8
 _processStep7sub1:
-	add r7,r7,#-1
-	add r8,r8,#0
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -252,13 +286,17 @@ _processStep7sub1:
 	cmp r12,#0
 	beq _processStep8
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
 
 _processStep8:
-	add r7,r5,#-1
-	add r8,r6,#1
+	mov r3,#0 @count
+	mov r9,#-1
+	mov r10,#1
+	add r7,r5,r9
+	add r8,r6,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -269,8 +307,9 @@ _processStep8:
 	cmp r12,r11
 	beq _processStep8
 _processStep8sub1:
-	add r7,r7,#-1
-	add r8,r8,#1
+	add r3,r3,#1
+	add r7,r7,r9
+	add r8,r8,r10
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
@@ -279,9 +318,11 @@ _processStep8sub1:
 	cmp r12,#0
 	beq _processStep8
 	cmp r12,r11
-	beq _possibleMove
+	moveq r13,pc
+	beq _DotheFlipping
 	b _processStep1sub1
 
+_MovementOver:
 
 
 
@@ -347,8 +388,23 @@ _returnAdressInR12:
 	mov pc,lr
 
 
-_possibleMove:
-
+_DotheFlipping:
+	mov r4,#0
+	ldr r2,=_board
+	mov r7,r5
+	mov r8,r6
+	bl _returnAdressInR12
+	str r11,[r12]
+_loopInFlipping:
+	add r7,r7,r9
+	add r8,r8,r10
+	bl _returnAdressInR12
+	str r11,[r12]
+	add r4,r4,#1
+	cmp r3,r4
+	blt _loopInFlipping
+	add r13,r13,#4
+	mov pc,r13
 
 _end:
 	swi SWI_EXIT
