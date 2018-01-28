@@ -1,0 +1,15 @@
+Input Format:
+	Sixteen Blue Buttons: These buttons will be used as a way for the user to specifiy the coordinate of the tile to make a move on. The first 8 button correspond to the column numbers 1 - 8, and the last 8 buttons will correspond to the row numbers 1 - 8.
+
+Two Black Buttons:
+	One for resetting the game (starting from scratch).
+	The other is a submit button. The user, after pressing two of the sixteen blue buttons, will press this button to confirm his selection of tile.
+
+8 Segment Display:
+	Important informations. Such as who won when the game is over.
+
+2 Red LEDs:
+	It shows whose turn it is.
+
+LCD Display:
+	The current status of the board.
