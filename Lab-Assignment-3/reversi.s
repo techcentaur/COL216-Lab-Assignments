@@ -1,8 +1,8 @@
 @Reversi game implemented in ARM assembly langauge
 @terminonlogies - r4:flag, r3:increment register, r2:address of board
-@ r11:player_no(1 or -1) r10:count
+@ r11:player_no(1 or 2) r10:count
 @
-@-1 -> black tile -> LEFT LED
+@ 2 -> black tile -> LEFT LED
 @ 1 -> white tile -> RIGHT LED
 @ 0 -> no tile
 
@@ -50,12 +50,74 @@
 
 
 _main:
+	bl _WelcomeMessage
 	bl _setBoard
-	mov r11,#1
+	swi SWI_CLEAR_DISPLAY
+	bl _DisplayBoard
+	mov r11,#2
 _gameContinue:
 	bl _playerAssign
 	b _processMove
 
+_WelcomeMessage:
+	mov r0,#4
+	mov r1,#1
+	ldr r2,=_Welcome
+	swi SWI_DRAW_STRING
+	mov r0,#5
+	mov r1,#2
+	ldr r2,=_PlayerInstructionSet
+	swi SWI_DRAW_STRING
+	mov r0,#5
+	mov r1,#4
+	ldr r2,=_ButtonInstruction
+	swi SWI_DRAW_STRING
+	mov r0,#5
+	mov r1,#6
+	ldr r2,=_LEDInstruction1
+	swi SWI_DRAW_STRING
+	mov r0,#5
+	mov r1,#7
+	ldr r2,=_LEDInstruction2
+	swi SWI_DRAW_STRING
+	mov r0,#5
+	mov r1,#9
+	ldr r2,=_8SegDisplayInstruction
+	swi SWI_DRAW_STRING
+	mov r0,#1
+	mov r1,#11
+	ldr r2,=_EnterButtonInstruction
+	swi SWI_DRAW_STRING
+	mov r0,#0
+_waitforRightBlackButton:
+	swi SWI_CheckBlack
+	cmp r0,#0
+	beq _waitforRightBlackButton
+	mov pc,lr
+
+
+
+_DisplayBoard:
+	mov r7,#0
+	mov r8,#0
+_loop1Display:
+	ldr r2,=_board
+	mov r0,#32
+	mul r1,r8,r0
+	mov r0,#4
+	mla r12,r7,r0,r1
+	mov r0,r7
+	mov r1,r8
+	ldr r2,[r2,r12]
+	swi SWI_DRAW_INT
+	add r7,r7,#1
+	cmp r7,#8
+	blt _loop1Display
+	add r8,r8,#1
+	mov r7,#0
+	cmp r8,#8
+	blt _loop1Display
+	mov pc,lr
 
 _processMove:
 	bl _readInput
@@ -345,23 +407,15 @@ _setBoard:
 	mov r1,#1
 	str r1,[r2,#108]
 	ldr r1,[r2,#112]
-	mov r1,#-1
+	mov r1,#2
 	str r1,[r2,#112]
 	ldr r1,[r2,#140]
-	mov r1,#-1
+	mov r1,#2
 	str r1,[r2,#140]
 	ldr r1,[r2,#144]
 	mov r1,#1
 	str r1,[r2,#144]
 	mov pc,lr
-
-_clearEmbestBoard:
-	swi SWI_CLEAR_DISPLAY
-	swi SWI_SETSEG8
-	mov r0,#0
-	swi SWI_SETLED
-	mov r0,#0
-	swi SWI_SETSEG8
 
 _checkIfFull:
 	ldr r2,=_board
@@ -383,11 +437,10 @@ _returnValueAtPostionInR12:
 	mov r12,r0
 	mov pc,lr
 _returnAdressInR12:
-	mov r0,#8
-	mul r1,r5,r0
-	add r1,r1,r6
+	mov r0,#32
+	mul r1,r8,r0
 	mov r0,#4
-	mul r12,r1,r0
+	mla r12,r7,r0,r1
 	mov pc,lr
 
 
@@ -453,17 +506,20 @@ _stepInputY:
 	mov pc,lr
 
 _playerAssign:
-	cmp r11,#-1
+	cmp r11,#2
 	beq _RightLED
 _leftLED:
 	mov r0,#0x02
 	swi SWI_SETLED @left
+	ldr r0,=SEG_B|SEG_A|SEG_F|SEG_E|SEG_D
+	swi SWI_SETSEG8
 	mov pc,lr
 _RightLED:
 	mov r0,#0x01
 	swi SWI_SETLED @right
+	ldr r0,=SEG_B|SEG_C
+	swi SWI_SETSEG8
 	mov pc,lr
-
 
 
 
@@ -480,3 +536,10 @@ _score1: .space 4
 _score2: .space 4
 _fullBoardAlert: .asciz "Board is Full!\n"
 _NotOnBoardAlert: .asciz "Position not on Board\n"
+_Welcome: .asciz "Welcome to the Game - Reversi\n"
+_PlayerInstructionSet: .asciz "2 -> Player2 ; 1 -> Player1\n"
+_LEDInstruction1: .asciz "Left Red LED -> Player2\n"
+_LEDInstruction2: .asciz  "Right Red LED -> Player1\n"
+_ButtonInstruction: .asciz "Left Black Button - Reset\n"
+_EnterButtonInstruction: .asciz "Press Right-Button(Enter) to continue\n"
+_8SegDisplayInstruction: .asciz "8Segment - Important Display\n"

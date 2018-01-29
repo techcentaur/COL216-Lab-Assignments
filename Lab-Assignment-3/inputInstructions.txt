@@ -7,7 +7,7 @@ Buttons:
 	2. Start the game  -> RIGHT
 
 LED:
-	Player's turn LEFT -> Black tile / -1
+	Player's turn LEFT -> Black tile / 2
 				  RIGHT -> White tile/ 1
 
 LCD:
