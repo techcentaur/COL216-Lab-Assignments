@@ -53,11 +53,14 @@ _main:
 	bl _WelcomeMessage
 	bl _setBoard
 	swi SWI_CLEAR_DISPLAY
-	bl _DisplayBoard
-	mov r11,#2
+	mov r4,pc
+	b _DisplayBoard
+	mov r11,#1
 _gameContinue:
+	bl _changePlayer
 	bl _playerAssign
 	b _processMove
+
 
 _WelcomeMessage:
 	mov r0,#4
@@ -96,7 +99,6 @@ _waitforRightBlackButton:
 	mov pc,lr
 
 
-
 _DisplayBoard:
 	mov r7,#0
 	mov r8,#0
@@ -117,7 +119,7 @@ _loop1Display:
 	mov r7,#0
 	cmp r8,#8
 	blt _loop1Display
-	mov pc,lr
+	mov pc,r4
 
 _processMove:
 	bl _readInput
@@ -133,7 +135,6 @@ _processMove:
 	cmp r4,#1
 	bne _notOnBoard
 	
-
 _processStep1:
 	mov r3,#0 @count
 	mov r9,#1
@@ -367,12 +368,12 @@ _processStep8:
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
-	bne _processStep8
+	bne _MovementOver
 	bl _returnValueAtPostionInR12 @value stored at (r7,r8) address
 	cmp r12,#0
-	beq _processStep8
+	beq _MovementOver
 	cmp r12,r11
-	beq _processStep8
+	beq _MovementOver
 _processStep8sub1:
 	add r3,r3,#1
 	add r7,r7,r9
@@ -380,10 +381,10 @@ _processStep8sub1:
 	bl _returnAdressInR12 @set r12 to (r7,r8) address
 	bl _checkIfOnBoard
 	cmp r4,#1
-	bne _processStep8
+	bne _MovementOver
 	bl _returnValueAtPostionInR12 @value stored at (r7,r8) address
 	cmp r12,#0
-	beq _processStep8
+	beq _MovementOver
 	cmp r12,r11
 	moveq r13,pc
 	beq _DotheFlipping
@@ -396,10 +397,11 @@ _checkIfOnBoard:
 	cmp r12,#256
 	movlt r4,#1
 	mov pc,lr
+
 _boardFull:
 	ldr r1,=_fullBoardAlert
 _notOnBoard:
-	ldr r1,=_NotOnBoardAlert
+	b _readInput
 
 _setBoard:
 	ldr r2,=_board
@@ -436,6 +438,7 @@ _returnValueAtPostionInR12:
 	ldr r0,[r2,r12]
 	mov r12,r0
 	mov pc,lr
+
 _returnAdressInR12:
 	mov r0,#32
 	mul r1,r8,r0
@@ -450,16 +453,19 @@ _DotheFlipping:
 	mov r7,r5
 	mov r8,r6
 	bl _returnAdressInR12
-	str r11,[r12]
+	str r11,[r2, r12]
 _loopInFlipping:
+	ldr r2,=_board
 	add r7,r7,r9
 	add r8,r8,r10
 	bl _returnAdressInR12
-	str r11,[r12]
+	str r11,[r2,r12]
 	add r4,r4,#1
 	cmp r3,r4
 	blt _loopInFlipping
 	add r13,r13,#4
+	mov r4,pc
+	b _DisplayBoard
 	mov pc,r13
 
 
@@ -505,8 +511,17 @@ _stepInputY:
 	str r3,[r4]
 	mov pc,lr
 
-_playerAssign:
+
+_changePlayer:
+	cmp r11,#1
+	moveq r11,#2
+	moveq pc,lr
 	cmp r11,#2
+	moveq r11,#1
+	mov pc,lr
+
+_playerAssign:
+	cmp r11,#1
 	beq _RightLED
 _leftLED:
 	mov r0,#0x02
@@ -520,9 +535,6 @@ _RightLED:
 	ldr r0,=SEG_B|SEG_C
 	swi SWI_SETSEG8
 	mov pc,lr
-
-
-
 
 _end:
 	swi SWI_EXIT
