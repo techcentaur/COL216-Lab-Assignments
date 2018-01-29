@@ -1,6 +1,10 @@
 @Reversi game implemented in ARM assembly langauge
 @terminonlogies - r4:flag, r3:increment register, r2:address of board
 @ r11:player_no(1 or -1) r10:count
+@
+@-1 -> black tile -> LEFT LED
+@ 1 -> white tile -> RIGHT LED
+@ 0 -> no tile
 
 	.equ SWI_SETSEG8,0x200
 	.equ SWI_SETLED,0x201
@@ -13,7 +17,6 @@
 	.equ SWI_CLEAR_LINE, 0x208
 	.equ SWI_EXIT, 0x11	
 	.equ SWI_GetTicks, 0x6d
-	.equ SWI_EXIT, 0x11
 	.equ SEG_A, 0x80
 	.equ SEG_B, 0x40
 	.equ SEG_C, 0x20
@@ -48,14 +51,18 @@
 
 _main:
 	bl _setBoard
-	mov lr,pc
-	bl _checkIfFull
-	cmp r4,#1	@flag
-	bne _boardFull
+	mov r11,#1
+_gameContinue:
+	bl _playerAssign
 	b _processMove
 
 
 _processMove:
+	bl _readInput
+	ldr r5,=_inputKeyboardXCoordinate
+	ldr r6,=_inputKeyboardYCoordinate
+	ldr r5,[r5]
+	ldr r6,[r6]
 	@(r5,r6) -> coordinates input on board
 	mov r7,r5
 	mov r8,r6
@@ -63,9 +70,7 @@ _processMove:
 	bl _checkIfOnBoard
 	cmp r4,#1
 	bne _notOnBoard
-	@str r5,=_currentPositionP1
-	@str r6,=_currentPositionP2
-
+	
 
 _processStep1:
 	mov r3,#0 @count
@@ -323,8 +328,7 @@ _processStep8sub1:
 	b _processStep1sub1
 
 _MovementOver:
-
-
+	b _gameContinue
 
 _checkIfOnBoard:
 	cmp r12,#256
@@ -381,7 +385,6 @@ _returnValueAtPostionInR12:
 _returnAdressInR12:
 	mov r0,#8
 	mul r1,r5,r0
-	sub r6,r6,#1
 	add r1,r1,r6
 	mov r0,#4
 	mul r12,r1,r0
@@ -406,14 +409,73 @@ _loopInFlipping:
 	add r13,r13,#4
 	mov pc,r13
 
+
+_readInput:
+	ldr r4,=_inputKeyboardXCoordinate
+_stepInputX:
+	swi 0x203
+	cmp r0,#0
+	beq _stepInputX
+	mov r3,#0
+	tst r0,#255
+	addeq r3,r3,#8
+	moveq r0,r0,LSR#8
+	tst r0,#15
+	addeq r3,r3,#4
+	moveq r0,r0,LSR#4
+	tst r0,#3
+	addeq r3,r3,#2
+	moveq r0,r0,LSR#2
+	tst r0,#1
+	addeq r3,r3,#1
+	moveq r0,r0,LSR#1
+	str r3,[r4]
+_readInputAdditional:
+	ldr r4,=_inputKeyboardYCoordinate
+_stepInputY:
+	swi 0x203
+	cmp r0,#0
+	beq _stepInputY
+	mov r3,#0
+	tst r0,#255
+	addeq r3,r3,#8
+	moveq r0,r0,LSR#8
+	tst r0,#15
+	addeq r3,r3,#4
+	moveq r0,r0,LSR#4
+	tst r0,#3
+	addeq r3,r3,#2
+	moveq r0,r0,LSR#2
+	tst r0,#1
+	addeq r3,r3,#1
+	moveq r0,r0,LSR#1
+	str r3,[r4]
+	mov pc,lr
+
+_playerAssign:
+	cmp r11,#-1
+	beq _RightLED
+_leftLED:
+	mov r0,#0x02
+	swi SWI_SETLED @left
+	mov pc,lr
+_RightLED:
+	mov r0,#0x01
+	swi SWI_SETLED @right
+	mov pc,lr
+
+
+
+
+
 _end:
 	swi SWI_EXIT
 
 
 .data
 _board: .space 256
-_currentPositionP1: .space 4
-_currentPositionP2: .space 4
+_inputKeyboardXCoordinate: .space 4
+_inputKeyboardYCoordinate: .space 4
 _score1: .space 4
 _score2: .space 4
 _fullBoardAlert: .asciz "Board is Full!\n"

@@ -1,0 +1,17 @@
+16Buttons:
+	X coordi input - press from first 8 buttons
+	Y coordi input - press from first 8 buttons
+
+Buttons:
+	1. Reset the board -> LEFT
+	2. Start the game  -> RIGHT
+
+LED:
+	Player's turn LEFT -> Black tile / -1
+				  RIGHT -> White tile/ 1
+
+LCD:
+	Display the board
+
+8-Segment Display:
+	Display important Information
