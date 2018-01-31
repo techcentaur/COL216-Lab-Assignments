@@ -20,7 +20,7 @@ _start:
 	mul r9,r5,r10
 	mov r2,#0
 
-@start the loop of 1000 numbers
+@start the loop of 10000 numbers
 _loop1000:
 	add r2,r2,#1
 	mov r3,r2

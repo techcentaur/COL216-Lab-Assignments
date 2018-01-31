@@ -1,17 +1,27 @@
 16Buttons:
 	X coordi input - press from first 8 buttons
+	(After inputting X co-ordinates)
 	Y coordi input - press from first 8 buttons
+	(After inputting Y co-ordinates)
 
 Buttons:
 	1. Reset the board -> LEFT
-	2. Start the game  -> RIGHT
+	2. Restart the game(only when 'first' game is completed) -> RIGHT
 
 LED:
-	Player's turn LEFT -> Black tile / 2
-				  RIGHT -> White tile/ 1
+	Player's turn LEFT -> Black tile / 1
+				  RIGHT -> White tile/ 2
 
 LCD:
-	Display the board
+	Display Board Real time
+	Display Scores
+	Display the Instruction need to play the game
+	Display Valid-Invalid Input Info
+	Display Winning Message and Winning score and Player who has it
+
 
 8-Segment Display:
-	Display important Information
+	Display important Information:
+
+	When 1-> Player1 Turn
+	When 2-> Player2 Turn
