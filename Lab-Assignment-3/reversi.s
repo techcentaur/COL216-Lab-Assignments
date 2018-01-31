@@ -50,9 +50,12 @@
 
 
 _main:
+	swi SWI_CLEAR_DISPLAY
+
 	bl _Initialize
 	bl _WelcomeMessage
 	bl _setBoard
+
 	swi SWI_CLEAR_DISPLAY
 	mov r4,pc
 	b _DisplayBoard
@@ -62,6 +65,7 @@ _main:
 _gameContinue:
 	bl _changePlayer
 	bl _playerAssign
+	bl _checkIfFull
 	b _CHECK_IF_MOVE_IS_PRESENT
 
 _Initialize:
@@ -124,7 +128,7 @@ _loop1Display:
 	mul r1,r8,r0
 	mov r0,#4
 	mla r12,r7,r0,r1
-	mov r0,r7
+	mov r0,r7,LSL#1
 	mov r1,r8
 	ldr r2,[r2,r12]
 	swi SWI_DRAW_INT
@@ -454,10 +458,9 @@ _InvalidINPUT:
 	b _processMove
 
 _GameOver:
-	mov r1,#14
-	swi SWI_CLEAR_LINE
-	mov r0,#15
-	mov r1,#14
+	swi SWI_CLEAR_DISPLAY
+	mov r0,#5
+	mov r1,#5
 	ldr r2,=_GameOverMessage
 	swi SWI_DRAW_STRING
 	ldr r0,=_score1
@@ -467,47 +470,36 @@ _GameOver:
 	cmp r0,r1
 	bgt _player1Wins
 	blt _player2Wins
-	mov r0,#14
-	swi SWI_CLEAR_LINE
-	mov r0,#22
-	mov r1,#14
+	mov r0,#2
+	mov r1,#15
 	ldr r2,=_DrawMessage
+	swi SWI_DRAW_STRING
 	b _GameOverWaitingSaga
 	
 _player1Wins:
-	mov r1,#15
-	swi SWI_CLEAR_LINE
 	mov r0,#1
-	mov r1,#15
+	mov r1,#6
 	ldr r2,=_Player1
 	swi SWI_DRAW_STRING
-	mov r1,#15
-	swi SWI_CLEAR_LINE
-	mov r0,#6
-	mov r1,#15
+	mov r0,#10
+	mov r1,#6
 	ldr r2,=_WinningMessage
 	swi SWI_DRAW_STRING
 	b _GameOverWaitingSaga
 
 _player2Wins:
-	mov r1,#15
-	swi SWI_CLEAR_LINE
 	mov r0,#1
-	mov r1,#15
+	mov r1,#8
 	ldr r2,=_Player2
 	swi SWI_DRAW_STRING
-	mov r1,#15
-	swi SWI_CLEAR_LINE
-	mov r0,#6
-	mov r1,#15
+	mov r0,#10
+	mov r1,#8
 	ldr r2,=_WinningMessage
 	swi SWI_DRAW_STRING
 	b _GameOverWaitingSaga
 
 _GameOverWaitingSaga:
-	mov r1,#11
-	swi SWI_CLEAR_LINE
-	mov r0,#20
+	mov r0,#2
 	mov r1,#11
 	ldr r2,=_RestartButtonInstruction
 	swi SWI_DRAW_STRING
@@ -527,7 +519,7 @@ _notOnBoard:
 	mov r1,#13
 	ldr r2,=_InvalidInputPleaseTryAgain
 	swi SWI_DRAW_STRING
-	b _readInput
+	bl _readInput
 
 @setting the board at the beginning of the game - Rule
 _setBoard:
@@ -555,7 +547,8 @@ _step1:
 	moveq r4,#1 @flag
 	moveq pc,lr
 	cmp r3,#252
-	moveq pc,lr
+	movle pc,lr
+	bgt _GameOver
 	add r3,r3,#4
 	b _step1
 
@@ -585,7 +578,7 @@ _loopInFlipping:
 	ldr r2,=_board
 	str r11,[r2,r12]
 	add r4,r4,#1
-	cmp r3,r4
+	cmp r4,r3
 	blt _loopInFlipping
 	mov r4,pc
 	b _ScoresIncrement
@@ -1013,11 +1006,11 @@ _ButtonInstruction: .asciz "Left Black Button - Reset\n"
 _EnterButtonInstruction: .asciz "Press Right-Button(Enter) to continue\n"
 _RestartButtonInstruction: .asciz "Press Left-Button(Enter) to restart\n"
 _8SegDisplayInstruction: .asciz "Lookout Display for Import Info.\n"
-_GameOverMessage: .asciz "Game-Over"
+_GameOverMessage: .asciz "Game-Over\n"
 _WinningMessage: .asciz "Wins!"
 _Player1: .asciz "Player1"
 _Player2: .asciz "Player2"
-_DrawMessage: .asciz "It's A Draw!"
+_DrawMessage: .asciz "It's A Draw!\n"
 _MessageForNoChance: .asciz "No Moves! Chances switch to next player"
 _InvalidInputPleaseTryAgain: .asciz "Invalid Input! Try again"
 _herecomesthedebugger: .asciz "Debugger!!"
